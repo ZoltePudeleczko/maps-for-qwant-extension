@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Maps Tab for Qwant – settings</title>
+  <style>
+    body { font: 14px system-ui, sans-serif; margin: 16px; min-width: 300px; color: #222; }
+    h1 { font-size: 16px; margin: 0 0 12px; }
+    label { display: block; margin: 12px 0 4px; font-weight: 600; }
+    select, input[type=text] { width: 100%; box-sizing: border-box; padding: 6px; font: inherit; }
+    .row { display: flex; align-items: center; gap: 8px; margin-top: 12px; }
+    .row label { margin: 0; font-weight: normal; }
+    .hint { color: #666; font-size: 12px; margin-top: 4px; }
+    #status { color: #2a7a2a; height: 1em; margin-top: 12px; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <h1>Maps Tab for Qwant</h1>
+
+  <label for="provider">Map service</label>
+  <select id="provider"></select>
+
+  <label for="label">Tab label</label>
+  <input type="text" id="label" placeholder="Maps">
+
+  <div class="row">
+    <input type="checkbox" id="newTab">
+    <label for="newTab">Open in a new tab</label>
+  </div>
+
+  <div id="status"></div>
+
+  <script src="providers.js"></script>
+  <script src="options.js"></script>
+</body>
+</html>
