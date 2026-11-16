@@ -1,7 +1,5 @@
 (() => {
   const MARK = "data-qwant-maps-tab";
-  // Qwant's search-type tabs are links like "/?q=foo&t=images"
-  const TAB_RE = /[?&]t=([a-z]+)\b/;
 
   const PIN_SVG = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></svg>';
 
@@ -20,12 +18,15 @@
   // and data-click-label="tab_bar_item_web", "tab_bar_item_images"…
   const TAB_SEL = '[data-click-label^="tab_bar_item_"], [data-testid$="NavItem"]';
 
+  const linkOf = (item) => (item.matches("a[href]") ? item : item.querySelector("a[href]") || item);
+
   function looksLikeTab(el) {
     return !el.querySelector("input, form, img") && el.textContent.trim().length <= 40;
   }
 
   function findTabBar() {
-    const tabs = [...document.querySelectorAll(TAB_SEL)].filter((t) => !t.closest(`[${MARK}]`));
+    // Our clone has the TAB_SEL attributes stripped, so it never matches here.
+    const tabs = [...document.querySelectorAll(TAB_SEL)];
     if (tabs.length < 2) return null;
     // The bar is the closest element that contains all the tabs;
     // each of its children that holds a tab is one tab item.
@@ -33,24 +34,24 @@
     while (bar && !tabs.every((t) => bar.contains(t))) bar = bar.parentElement;
     if (!bar) return null;
     const items = [...bar.children].filter(
-      (c) => !c.hasAttribute(MARK) && (c.matches(TAB_SEL) || c.querySelector(TAB_SEL))
+      (c) => c.matches(TAB_SEL) || c.querySelector(TAB_SEL)
     );
     if (items.length < 2 || !items.every(looksLikeTab)) return null;
     return { bar, items };
   }
 
   function isActive(item) {
-    const a = item.matches("a[href]") ? item : item.querySelector("a[href]") || item;
+    const a = linkOf(item);
     if (a.getAttribute("aria-current") || a.getAttribute("aria-selected") === "true") return true;
-    const m = (a.getAttribute("href") || "").match(TAB_RE);
-    const t = new URLSearchParams(location.search).get("t") || "web";
-    return !!m && m[1] === t;
+    // Qwant's search-type tabs are links like "/?q=foo&t=images"
+    const t = new URL(a.getAttribute("href") || "", location.href).searchParams.get("t");
+    return !!t && t === (new URLSearchParams(location.search).get("t") || "web");
   }
 
   function buildTab(templateItem) {
     const item = templateItem.cloneNode(true);
     item.setAttribute(MARK, "");
-    const link = item.matches("a[href]") ? item : item.querySelector("a[href]") || item;
+    const link = linkOf(item);
 
     // Strip state/ids that belong to the original tab
     [item, ...item.querySelectorAll("*")].forEach((n) => {
@@ -84,23 +85,19 @@
     link.setAttribute("href", "#");
     link.removeAttribute("target");
 
-    const open = (forceNewTab) => {
+    // Left click fires "click", middle click fires "auxclick".
+    // Capture phase so Qwant's own handlers never see the click.
+    const onClick = (e) => {
+      if (e.button > 1) return;
+      e.preventDefault();
+      e.stopImmediatePropagation();
       const url = qmBuildUrl(settings, currentQuery());
-      if (forceNewTab || settings.newTab) window.open(url, "_blank", "noopener");
+      const newTab = e.button === 1 || e.ctrlKey || e.metaKey || e.shiftKey || settings.newTab;
+      if (newTab) window.open(url, "_blank", "noopener");
       else location.href = url;
     };
-    // Capture phase so Qwant's own handlers never see the click
-    link.addEventListener("click", (e) => {
-      e.preventDefault();
-      e.stopImmediatePropagation();
-      open(e.ctrlKey || e.metaKey || e.shiftKey);
-    }, true);
-    link.addEventListener("auxclick", (e) => {
-      if (e.button !== 1) return;
-      e.preventDefault();
-      e.stopImmediatePropagation();
-      open(true);
-    }, true);
+    link.addEventListener("click", onClick, true);
+    link.addEventListener("auxclick", onClick, true);
 
     return item;
   }
