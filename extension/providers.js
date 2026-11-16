@@ -10,12 +10,12 @@ const QM_PROVIDERS = {
 };
 
 const QM_DEFAULTS = {
-  provider: "google",
+  provider: "osm",
   newTab: false,
   label: "Maps"
 };
 
 function qmBuildUrl(settings, query) {
-  const p = QM_PROVIDERS[settings.provider] || QM_PROVIDERS.google;
+  const p = QM_PROVIDERS[settings.provider] || QM_PROVIDERS.osm;
   return p.url.split("%s").join(encodeURIComponent(query || ""));
 }

@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "description": "Adds a Maps tab to Qwant search results that opens your query in your chosen map service.",
   "author": "Szymon Zborowski",
-  "homepage_url": "https://github.com/ZoltePudeleczko/maps-for-qwant-extension",
+  "homepage_url": "https://mapsforqwant.zborowski.xyz",
   "permissions": [
     "storage"
   ],

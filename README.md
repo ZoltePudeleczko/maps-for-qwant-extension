@@ -2,6 +2,8 @@
 
 A small Chrome extension that adds a **Maps** tab to [Qwant](https://www.qwant.com) search results, next to All / Images / Videos. Clicking it opens your current search in the map service you choose.
 
+[![Available in the Chrome Web Store](https://developer.chrome.com/static/docs/webstore/branding/image/iNEddTyWiMfLSwFD6qGq.png)](https://chromewebstore.google.com/detail/pblfkenlfhmkkggopahcjnjpdnffbihh)
+
 ![Maps tab on Qwant](screenshot.png)
 
 ## Features
